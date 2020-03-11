@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Amy專業剪髮的口罩地圖</title>
+<style>
+  html,body{
+  width: 100%;
+  height: 100%;
+}
+#map { width: 100%;height: 100%; }
+
+
+
+.marker-cluster-small {
+		background-color: rgba(181, 226, 140, 0.6);
+		}
+	.marker-cluster-small div {
+		background-color: rgba(110, 204, 57, 0.6);
+		}
+
+	.marker-cluster-medium {
+		background-color: rgba(241, 211, 87, 0.6);
+		}
+	.marker-cluster-medium div {
+		background-color: rgba(240, 194, 12, 0.6);
+		}
+
+	.marker-cluster-large {
+		background-color: rgba(253, 156, 115, 0.6);
+		}
+	.marker-cluster-large div {
+		background-color: rgba(241, 128, 23, 0.6);
+		}
+
+	.marker-cluster {
+		background-clip: padding-box;
+		border-radius: 20px;
+		}
+	.marker-cluster div {
+		width: 30px;
+		height: 30px;
+		margin-left: 5px;
+		margin-top: 5px;
+
+		text-align: center;
+		border-radius: 15px;
+		font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+		}
+	.marker-cluster span {
+		line-height: 30px;
+		}
+
+</style>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css"></link> 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css"></link> 
+
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+ <div id="map"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
+<!-- partial -->
+  <script  src="./script.js"></script>
+
+</body>
+</html>
+<script>
+var map = L.map('map', {
+    center: [25.119666, 121.515968],
+    zoom: 16
+});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+var greenIcon = new L.Icon({
+  iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+var redIcon = new L.Icon({
+  iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+var blackIcon = new L.Icon({
+  iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+var markers = new L.MarkerClusterGroup().addTo(map);;
+
+var xhr = new XMLHttpRequest();
+xhr.open("get","https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json");
+xhr.send();
+xhr.onload = function(){
+ var data = JSON.parse(xhr.responseText).features
+for(let i =0;data.length>i;i++){
+  var mask;
+ if(data[i].properties.mask_adult == 0){
+   mask = redIcon;
+ }else{
+   mask = greenIcon;
+ } markers.addLayer(L.marker([data[i].geometry.coordinates[1],data[i].geometry.coordinates[0]], {icon: mask}).bindPopup('<h1>'+data[i].properties.name+'</h1>'+'<br>'+data[i].properties.address+'<br>'+data[i].properties.phone+'<br>成人口罩數:量'+data[i].properties.mask_adult+'<br>兒童口罩數:量'+data[i].properties.mask_child+'</>'));
+ }
+ map.addLayer(markers);
+}
+
+L.marker([25.119666, 121.515968],{icon: blackIcon}).addTo(map)
+.bindPopup('<h1>Amy專業剪髮</h1><p>電話:0906-889-703<br>地址:台北市北投區立農街二段297號<br>LINE ID: 09068897</p>')
+.openPopup();
+</script>
